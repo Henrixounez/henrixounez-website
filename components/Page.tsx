@@ -51,14 +51,14 @@ interface PageProps {
 const Page: FunctionComponent<PageProps> = ({children, noShowBg, overrideBg, shadowBg}) => (
   <Container noShowBg={noShowBg || false} overrideBg={overrideBg} shadowBg={shadowBg} id="PageContainer">
     <Head>
-      <style jsx global>{`
+      <title>Henrixounez</title>
+    </Head>
+    <style jsx global>{`
         body {
           margin: 0px;
           padding: 0px;
         }
       `}</style>
-      <title>Henrixounez</title>
-    </Head>
     <Content id='content'>
       {children}
     </Content>
