@@ -2,7 +2,7 @@ import { FunctionComponent } from 'react';
 import styled from 'styled-components';
 import TopBar from './TopBar';
 
-const Container = styled.div<{noShowBg?: boolean, overrideBg?: string}>`
+const Container = styled.div<{noShowBg?: boolean, overrideBg?: string, shadowBg?: boolean}>`
   position: relative;
   min-height: 100vh;
   background: rgb(10, 10, 10);
@@ -14,12 +14,16 @@ const Container = styled.div<{noShowBg?: boolean, overrideBg?: string}>`
     width: 100%;
     height: 100%;
     max-width: calc(100vw - 1px);
-    ${({noShowBg, overrideBg}) => noShowBg ? `
+    transition: .5s;
+    ${({noShowBg, overrideBg, shadowBg}) => noShowBg ? `
       background-color: rgb(10, 10, 10);
     ` : `
       background-image: url(${overrideBg ? overrideBg : '/screen.png'});
       background-size: cover;
-      filter: brightness(0.3) grayscale(0.8);
+      filter: ${!shadowBg ?
+        `brightness(0.3) grayscale(0.8)` :
+        `brightness(0.2) grayscale(0.8)`
+      };
     `
   }
   #content {
@@ -41,9 +45,10 @@ const Content = styled.div`
 interface PageProps {
   noShowBg?: boolean,
   overrideBg?: string,
+  shadowBg?: boolean,
 }
-const Page: FunctionComponent<PageProps> = ({children, noShowBg, overrideBg}) => (
-  <Container noShowBg={noShowBg || false} overrideBg={overrideBg}>
+const Page: FunctionComponent<PageProps> = ({children, noShowBg, overrideBg, shadowBg}) => (
+  <Container noShowBg={noShowBg || false} overrideBg={overrideBg} shadowBg={shadowBg} id="PageContainer">
     <style jsx global>{`
       body {
         margin: 0px;

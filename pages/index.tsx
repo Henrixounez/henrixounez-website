@@ -1,12 +1,9 @@
-import { useEffect, useRef }                 from 'react';
+import { useState }               from 'react';
 import styled                     from 'styled-components'
 import Link                       from 'next/link';
 import { bpdw, BreakpointSizes }  from '../components/breakpoints';
 import Page                       from '../components/Page';
 import { GradientTitle } from '../components/GradientTitle';
-
-const heroPictureDefaultFilter = 'brightness(0.5) grayscale(0.8)';
-const heroPictureHoveredFilter = 'brightness(0.3) grayscale(0.8)';
 
 const HeroContainer = styled.div`
   width: 100vw;
@@ -32,28 +29,18 @@ const CustomGradientTitle = styled(GradientTitle)`
 `;
 
 export default function Index() {
-  const imgRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const img = document.getElementById('bghero');
-    if (img) {
-      imgRef.current = img;
-      img.style.filter = heroPictureDefaultFilter;
-    }
-  }, []);
+  const [ shadow, setShadow ] = useState(false);
 
   return (
-    <Page>
+    <Page shadowBg={shadow}>
       <HeroContainer>
         <Link href='/about'>
           <CustomGradientTitle id='gradient'
             onMouseEnter={() => {
-              if (imgRef && imgRef.current !== null)
-                imgRef.current.style.filter = heroPictureHoveredFilter;
+              setShadow(true);
             }}
             onMouseLeave={() => {
-              if (imgRef && imgRef.current !== null)
-                imgRef.current.style.filter = heroPictureDefaultFilter;
+              setShadow(false);
             }}
           >
             Henrixounez
