@@ -25,7 +25,7 @@ const Container = styled.div<{noShowBg?: boolean, overrideBg?: string, shadowBg?
         `brightness(0.3) grayscale(0.8)` :
         `brightness(0.2) grayscale(0.8)`
       };
-    `
+    `}
   }
   #content {
     position: absolute;
