@@ -120,6 +120,7 @@ interface TextChanges {
   toAdd: string;
   start: number;
   end: number;
+  cmData: codemirror.EditorChange;
 }
 
 function findCharacterIndex(text: string, pos: codemirror.Position) {
@@ -136,14 +137,7 @@ function getChanges(lastText: string, newText: string, data: codemirror.EditorCh
   const start = findCharacterIndex(lastText, data.from);
   const end = findCharacterIndex(lastText, data.to);
   const toAdd = newText.substring(start, newText.length - (lastText.length - end));
-  return { start, end, toAdd };
-}
-
-function applyChanges(lastText: string, changes: TextChanges) {
-  const startText = lastText.substring(0, changes.start);
-  const endText = lastText.substring(changes.end);
-  const updatedText = startText + changes.toAdd + endText;
-  return updatedText;
+  return { start, end, toAdd, cmData: data };
 }
 
 const wsServerUrl = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080' : 'wss://api.henrixounez.com/henrixounez';
@@ -181,7 +175,7 @@ function Coding() {
   const reconnect = useRef<NodeJS.Timeout | null>(null);
   const messages = useRef<Array<{type: string, data: any}>>([]);
 
-  const [_, setClients] = useState<Record<number, codemirror.TextMarker>>({});
+  const [_, setClients] = useState<Record<string, codemirror.TextMarker>>({});
   const [me, setMe] = useState<Client | null>(null);
   const [filename, setFilename] = useState('index.js');
   const sessionId = useRef<string | null>(null);
@@ -203,7 +197,7 @@ function Coding() {
   const clearBookmark = () => {
     setClients((clients) => {
       Object.keys(clients).forEach((e: string) => {
-        clients[Number(e)].clear();
+        clients[e].clear();
       });
       return {};
     });
@@ -267,20 +261,25 @@ function Coding() {
           setText(data.text);
           setMe(data.me);
           clearBookmark();
-          data.clients.forEach((c: any) => createBookmark(c.pos, c.id, c.name));
+          data.clients.forEach((c: any) => createBookmark(c.pos, c.uuid, c.name));
           break;
         case "change":
-          setText((t) => applyChanges(t, data));
+          if (editor.current) {
+            // @ts-expect-error
+            const doc = editor.current.editor.getDoc();
+            const { text, from, to } = data.cmData;
+            doc.replaceRange(text.join('\n'), from, to, "@ignore");
+          }
           break;
         case "nameChange":
         case "cursorMove":
-          createBookmark(data.pos, data.id, data.name);
+          createBookmark(data.pos, data.uuid, data.name);
           break;
         case "removeClient":
           setClients((clients) => {
-            if (clients[data.id]) {
-              clients[data.id].clear();
-              delete clients[data.id];
+            if (clients[data.uuid]) {
+              clients[data.uuid].clear();
+              delete clients[data.uuid];
             }
             return clients;
           })
@@ -354,11 +353,13 @@ function Coding() {
               lint: true,
             }}
             onCursor={(_editor, data) => {
+              console.log('my cursor is moving jpp', data);
               sendToWs("cursorMove", data);
             }}
             onBeforeChange={(_editor, data, value) => {
               setText(value);
-              sendToWs("change", getChanges(text, value, data))
+              if (data.origin !== "@ignore")
+                sendToWs("change", getChanges(text, value, data))
             }}
           />
         </Container>
