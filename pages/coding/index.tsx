@@ -146,8 +146,8 @@ function applyChanges(lastText: string, changes: TextChanges) {
   return updatedText;
 }
 
-const wsServerUrl = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080' : 'wss://api.henrixounez.com';
-const serverUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'https://api.henrixounez.com';
+const wsServerUrl = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080' : 'wss://api.henrixounez.com/henrixounez';
+const serverUrl = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'https://api.henrixounez.com/henrixounez';
 
 interface InputProps {
   onBlur: (v: string) => void;
